@@ -1,5 +1,6 @@
 package com.djm.controller;
 
+import com.djm.dao.CustomerDao;
 import com.djm.model.Account;
 import com.djm.model.AccountType;
 import com.djm.model.Customer;
@@ -8,9 +9,11 @@ import com.djm.view.ConsoleView;
 public class BankController {
     
     private ConsoleView view;
+    private CustomerDao dao;
 
-    public BankController(ConsoleView view){
+    public BankController(ConsoleView view, CustomerDao dao){
         this.view = view;
+        this.dao =  dao;
     }
 
     final String[] OPTIONS = {"Create New Account", "Login", "Exit"};
@@ -31,8 +34,7 @@ public class BankController {
                     createUser();
                     break;
             case 2:
-                    System.out.println("Login Goes Here...");
-                    displayMenu();
+                    login();
                     break;
             case 3:
                     exitBankApp();
@@ -89,5 +91,16 @@ public class BankController {
 
         }while(continueAdding);
 
+    }
+
+    public void login(){
+        String[] loginInfo = view.loginPrompt();
+        Customer customer = dao.getUserByUsername(loginInfo[0]);
+
+        if(customer != null){
+            System.out.println(customer.toString());
+        }else{
+            System.out.println("Username does not exist");
+        }
     }
 }

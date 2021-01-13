@@ -28,6 +28,15 @@ public class ConsoleView {
         return io.readInt("Please select an option: ", 1, options.length);
     }
 
+    public int userOptions(){
+        String[] options = {"Deposit", "Withdrawal", "Transfer funds", "Display Customer Info", "Change password", "Logout"};
+        for(int i = 0; i < options.length; i++){
+            io.print((i+1) + ". " + options[i]);
+        }
+
+        return io.readInt("Please select an option: ");
+    }
+
 	public void exitMessage() {
         System.out.println("---------------------------------------------------");
         System.out.println("-------------------  GOODBYE  ---------------------");
@@ -85,5 +94,13 @@ public class ConsoleView {
                 return false;
         }
         
-	}
+    }
+    
+    public String[] loginPrompt(){
+        String username = io.readString("Username: ");
+        String password = io.readString("Password: ");
+        String[] loginInfo = {username, password};
+
+        return loginInfo;
+    }
 }
