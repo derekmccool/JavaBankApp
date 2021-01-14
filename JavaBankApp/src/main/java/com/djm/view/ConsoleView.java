@@ -140,8 +140,9 @@ public class ConsoleView {
     }
 
     public AccountType addAccount(AccountType[] accounts){
-
-        System.out.println("What type of account would you like to add?");
+        borderLineNoExtraSpace();
+        System.out.println("WHAT TYPE OF ACCOUNT WOULD YOU LIKE TO ADD?");
+        borderLineNoExtraSpace();
         for(int i = 0; i < accounts.length; i++){
             System.out.println((i+1) + " " + accounts[i]);
         }
@@ -234,6 +235,8 @@ public class ConsoleView {
 	}
   
     public void printWarning(String message){
+        borderLineNoExtraSpace();
         io.print(ANSI_RED + message + ANSI_RESET);
+        borderLineNoExtraSpace();
     }
 }

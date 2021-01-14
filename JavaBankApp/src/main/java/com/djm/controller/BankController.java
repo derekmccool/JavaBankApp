@@ -54,17 +54,18 @@ public class BankController {
 
     public void createCustomer() {
         boolean accountInvalid = true;
-        String[] accountInfo;
+        String[] customerInfo;
         do {
-            accountInfo = view.createCustomer();
-            String username = accountInfo[0];
-            String password = accountInfo[1];
-            String confirmPass = accountInfo[2];
+            customerInfo = view.createCustomer();
+            String username = customerInfo[0];
+            String password = customerInfo[1];
+            String confirmPass = customerInfo[2];
             if (password.equals(confirmPass)) {
                 try{
                     accountInvalid = false;
-                    currentCustomer = service.createCustomer(username, password);
-                    addAccount();
+                    service.createCustomer(username, password);
+                    currentCustomer = service.getCustomerByUsername(username);
+
                 }catch(CustomerNameTakenException e){
                     System.out.println(e.getMessage());
                 }
@@ -72,7 +73,7 @@ public class BankController {
                 view.printWarning("PASSWORD DOES NOT MATCH");
             }
         } while (accountInvalid);
-
+        addAccount();
     }
 
     public void addAccount() {
