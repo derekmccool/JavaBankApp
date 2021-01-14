@@ -3,6 +3,7 @@ package com.djm;
 import com.djm.controller.BankController;
 import com.djm.dao.CustomerDao;
 import com.djm.dao.CustomerDaoImpl;
+import com.djm.service.CustomerService;
 import com.djm.view.ConsoleIO;
 import com.djm.view.ConsoleView;
 
@@ -16,8 +17,9 @@ public class App
     {
         ConsoleIO io = new ConsoleIO();
         ConsoleView view = new ConsoleView(io);
-        CustomerDao dao = new CustomerDaoImpl();
-        BankController controller = new BankController(view, dao);
+        CustomerDaoImpl dao = new CustomerDaoImpl();
+        CustomerService service = new CustomerService(dao);
+        BankController controller = new BankController(view, service);
 
         controller.bankRunner();
     }

@@ -6,13 +6,14 @@ import java.util.List;
 public class Customer {
     
     static int counter = 10000;
-
+    public static final int MAX_ACCOUNTS = 3;
     private int customerId;
     private String username;
     private String password;
     private List<Account> accounts = new ArrayList<>();
+    private List<PendingTransfer> pendingTransfers = new ArrayList<>();
     private List<String> transactions = new ArrayList<>();
-
+ 
 
     public Customer() {
     }
@@ -61,9 +62,16 @@ public class Customer {
         return this.transactions;
     }
 
-    public void setTransactions(List<String> transactions) {
-        this.transactions = transactions;
+    public void addTransaction(String transaction) {
+        this.transactions.add(transaction);
     }
 
+    public List<PendingTransfer> getPendingTransfers() {
+        return this.pendingTransfers;
+    }
+
+    public void addPendingTransfer(PendingTransfer pendingTransfer) {
+        this.pendingTransfers.add(pendingTransfer);
+    }
 
 }

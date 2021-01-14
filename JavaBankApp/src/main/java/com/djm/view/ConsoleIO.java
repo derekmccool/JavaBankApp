@@ -50,6 +50,7 @@ public class ConsoleIO {
 				System.out.print(prompt);
 				userInput = sc.nextInt();
 				if(userInput >= min &&  userInput <= max) {
+					sc.nextLine();
 					return userInput;
 				}else {
 					throw new InputOutOfRangeException(min, max);
@@ -68,17 +69,12 @@ public class ConsoleIO {
 	
 
 	public String readString(String prompt) {
-		String userInput;
 		while (true) {
-			
 			try {
-				sc.nextLine();
 				System.out.print(prompt);
-				userInput = sc.nextLine();
-				return userInput;
+				return sc.nextLine();
 				
 			} catch (InputMismatchException e) {
-//				sc.nextLine();
 				System.out.println("Please insert a proper value");
 			}
 			

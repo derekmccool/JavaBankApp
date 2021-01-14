@@ -14,10 +14,11 @@ public class Account {
         this.accountNumber = counter;
     }
 
-    public Account(int customerid, int accountNumber, double balance) {
+    public Account(int customerid, double balance, AccountType accountType) {
         this.customerid = customerid;
-        this.accountNumber = accountNumber;
+        this.accountNumber = counter;
         this.balance = balance;
+        this.accountType = accountType;
         counter++;
     }
 
@@ -60,6 +61,13 @@ public class Account {
             throw new InsufficientFundsExeption(this.balance);
         }
 
+    }
+
+    public void deposit(double amount){
+
+        if(amount > 0){
+            setBalance(this.balance + amount);
+        }
     }
 
     @Override
