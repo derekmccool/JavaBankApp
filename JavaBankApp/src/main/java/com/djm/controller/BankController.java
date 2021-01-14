@@ -29,7 +29,6 @@ public class BankController {
     private int loginAttempts = 3;
 
     public void bankRunner() {
-        view.printWelcome();
         displayMenu();
     }
 
@@ -70,7 +69,7 @@ public class BankController {
                     System.out.println(e.getMessage());
                 }
             } else {
-                System.out.println("Password does not match");
+                view.printWarning("PASSWORD DOES NOT MATCH");
             }
         } while (accountInvalid);
 
@@ -82,15 +81,15 @@ public class BankController {
         boolean infoConfirmed = true;
         do {
             newAccount.setAccountType(view.addAccount(accountTypes));
-            newAccount.setBalance(view.getUserAmount("Initial deposit amount: $"));
+            newAccount.setBalance(view.getUserAmount("INITIAL DEPOSIT AMOUNT: $"));
             view.displayAccountInfo(newAccount);
-            infoConfirmed = view.yesNoAnswer("Is this account information correct?");
+            infoConfirmed = view.yesNoAnswer("IS THIS INFORMATION CORRECT?");
         } while (!infoConfirmed);
 
         try{
             service.addAccountToCustomer(currentCustomer, newAccount);
         }catch(MaximumAccountsReachedException e){
-            System.out.println(e.getMessage());
+            view.printWarning(e.getMessage().toUpperCase());
         }
 
         userMenu();
@@ -109,17 +108,19 @@ public class BankController {
                 userMenu();
             } else {
                 loginAttempts--;
-                System.out.println("Username and password do not match");
-                System.out.println("Login attempts remaining: " + loginAttempts);
+                view.printWarning("USERNAME AND PASSWORD DO NOT MATCH");
+                view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
+                displayMenu();
             }
         } else {
             loginAttempts--;
-            System.out.println("Username does not exist");
-            System.out.println("Login attempts remaining: " + loginAttempts);
+            view.printWarning("USERNAME DOES NOT EXIST");
+            view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
+            displayMenu();
         }
 
         if (loginAttempts == 0) {
-            System.out.println("Too many login attempts");
+            view.printWarning("TOO MANY LOGIN ATTEMPTS");
             exitBankApp();
         }
 
@@ -129,7 +130,7 @@ public class BankController {
 
         pendingTransfersPrompt();
 
-        switch (view.userOptions()) {
+        switch (view.userOptions(currentCustomer.getUsername())) {
 
             case 1:
                 depositMenu();
@@ -177,12 +178,12 @@ public class BankController {
             userMenu();
         } else {
             Account account =  currentCustomer.getAccounts().get(choice - 1);
-            deposit = view.getUserAmount("Deposit amount: $");
+            deposit = view.getUserAmount("DEPOSIT AMOUNT: $");
             if (deposit > 0) {
                 service.depositToAccount(currentCustomer, account, deposit);
                 userMenu();
             } else {
-                System.out.println("Deposit can not be a negative number.");
+                view.printWarning("DEPOSIT CANNOT BE A NEGATIVE NUMBER");
                 depositMenu();
             }
         }
@@ -195,17 +196,17 @@ public class BankController {
             userMenu();
         } else {
             Account account =  currentCustomer.getAccounts().get(choice - 1);
-            withdrawal = view.getUserAmount("Withrawal amount: $");
+            withdrawal = view.getUserAmount("WITHDRAWAL AMOUNT: $");
             if (withdrawal > 0) {
                 try {
                     service.withdrawFromAccount(currentCustomer, account, withdrawal);
                     userMenu();
                 } catch (InsufficientFundsExeption e) {
-                    System.out.println(e);
+                    view.printWarning(e.getMessage().toUpperCase());
                 }
                 userMenu();
             }else{
-                System.out.println("Withdrawal can not be a negative number.");
+                view.printWarning("WITHDRAWAL CANNOT BE A NEGATIVE NUMBER");
                 depositMenu();
             }
         }
@@ -219,21 +220,17 @@ public class BankController {
         } else {
             Account account =  currentCustomer.getAccounts().get(choice - 1);
             Customer transferCustomer = service.getCustomerByUsername(view.getTransferCustomerUsername());
-            withdrawal = view.getUserAmount("Transfer amount: $");
+            withdrawal = view.getUserAmount("TRANSFER AMOUNT: $");
             if (withdrawal > 0) {
                 try {
-                    account.withdrawal(withdrawal);
-                    currentCustomer.addTransaction("Transfer of $" + withdrawal + " from Account:" + account.getAccountNumber()
-                     + " on : " + LocalDate.now() + " to " + transferCustomer.getUsername());
-                    transferCustomer.addPendingTransfer(new PendingTransfer(account,
-                        transferCustomer, withdrawal));
+                    service.sendTransfer(currentCustomer, transferCustomer, account, withdrawal);
                     userMenu();
                 } catch (InsufficientFundsExeption e) {
-                    System.out.println(e);
+                    view.printWarning(e.getMessage().toUpperCase());
                 }
                 userMenu();
             }else{
-                System.out.println("Withdrawal can not be a negative number.");
+                view.printWarning("WITHDRAWAL CANNOT BE A NEGATIVE NUMBER");
                 depositMenu();
             }
         }
@@ -250,7 +247,7 @@ public class BankController {
             for(int i = 0; i < currentCustomer.getPendingTransfers().size(); i ++){
                 pendingTransfer = currentCustomer.getPendingTransfers().get(i);
                 view.printPendingTransfer(pendingTransfer);
-                if(view.yesNoAnswer("Would you lke to accept this transfer?")){
+                if(view.yesNoAnswer("WOULD YOU LIKE TO ACCEPT THIS TRANSFER?")){
                     int choice = view.accountToTransfer(currentCustomer.getAccounts()) - 1;
                     Account account = currentCustomer.getAccounts().get(choice);
                     service.acceptTransfer(currentCustomer, account, pendingTransfer);

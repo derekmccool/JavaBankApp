@@ -1,7 +1,6 @@
 package com.djm;
 
 import com.djm.controller.BankController;
-import com.djm.dao.CustomerDao;
 import com.djm.dao.CustomerDaoImpl;
 import com.djm.service.CustomerService;
 import com.djm.view.ConsoleIO;

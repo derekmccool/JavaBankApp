@@ -43,11 +43,11 @@ public class ConsoleIO {
 		}
 	}
 
-	public int readInt(String prompt, int min, int max) {
+	public int readInt(int min, int max) {
 		int userInput;
 		while (true) {
 			try {
-				System.out.print(prompt);
+				System.out.print("CHOOSE AN OPTION: ");
 				userInput = sc.nextInt();
 				if(userInput >= min &&  userInput <= max) {
 					sc.nextLine();

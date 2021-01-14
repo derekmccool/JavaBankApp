@@ -1,5 +1,7 @@
 package com.djm.service;
 
+import java.time.LocalDate;
+
 import com.djm.dao.CustomerDaoImpl;
 import com.djm.exception.CustomerNameTakenException;
 import com.djm.exception.InsufficientFundsExeption;
@@ -46,13 +48,20 @@ public class CustomerService {
     public void withdrawFromAccount(Customer customer, Account account, double amount)
             throws InsufficientFundsExeption {
         account.withdrawal(amount);
-        customer.addTransaction("$" + amount + "withdrew from " + account.getAccountType() + " Account number: " + account.getAccountNumber());
+        customer.addTransaction("WITHDRAWAL FROM ACCOUNT NUMBER: " + account.getAccountNumber() + " AMOUNT: $" + amount + " DATE: " + LocalDate.now());
+    }
+
+    public void sendTransfer(Customer sender, Customer receiver, Account account, double amount) throws InsufficientFundsExeption {
+        account.withdrawal(amount);
+        sender.addTransaction("TRANSFERED FROM ACCOUNT NUMBER: " + account.getAccountNumber() + " AMOUNT: $" + amount + " DATE: " + LocalDate.now() + "TO " + receiver.getUsername());
+        receiver.addPendingTransfer(new PendingTransfer(account,
+           receiver, amount));
+
     }
 
     public void acceptTransfer(Customer customer, Account account, PendingTransfer pendingTransfer){
             account.deposit(pendingTransfer.getTransferAmount());
-            customer.addTransaction("$" + pendingTransfer.getTransferAmount() + "transfered to " + account.getAccountType() + " Account number: "
-            + account.getAccountNumber() + " from " + pendingTransfer.getSendingAccount());
+            customer.addTransaction("RECEIVED TRANSFER FROM: " + account.getAccountNumber() + " AMOUNT: $" + pendingTransfer.getTransferAmount() + " DATE: " + LocalDate.now());
             customer.getPendingTransfers().remove(pendingTransfer);
     }
 
@@ -60,6 +69,5 @@ public class CustomerService {
             pendingTransfer.getSendingAccount().deposit(pendingTransfer.getTransferAmount());
             customer.getPendingTransfers().remove(pendingTransfer);
     }
-
 
 }
