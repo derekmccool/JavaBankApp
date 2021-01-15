@@ -75,5 +75,13 @@ public class Customer {
         this.pendingTransfers.add(pendingTransfer);
     }
 
+    public CustomerSettings getCustomerSettings() {
+        return this.customerSettings;
+    }
+
+    public void setCustomerSettings(CustomerSettings customerSettings) {
+        this.customerSettings = customerSettings;
+    }
+
    
 }

@@ -15,16 +15,17 @@ public class ConsoleView {
     private String border1 = "";
     private String border2 = "";
     private String borderline = "";
-    private String borderSymbol1 = "-";
-    private String borderSymbol2 = "=";
-    private String borderSymbol3 = "=";
+    private char borderSymbol1 = '-';
+    private char borderSymbol2 = '=';
+    private char borderSymbol3 = '=';
 
     private int width = 50;
     final String[] MAIN_MENU_OPTIONS = { "Create New Account", "Login", "Exit" };
     final String[] CUSTOMER_MENU_OPTIONS = {"Deposit", "Withdrawal", "Transfer funds", 
                                             "Display Customer Info", "Change password", "View recent transactions", "Add Account",
-                                            "Logout"};
-
+                                            "Settings","Logout"};
+    final String[] SETTINGS_MENU_OPTIONS = { "Update Border Symbol 1", "Update Border Symbol 2", "Update Border Symbol 3",
+                                            "Update Console Width", "Reset to defaults", "Return to main menu" };
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -64,7 +65,7 @@ public class ConsoleView {
         this.borderline += ANSI_RESET;
     }
 
-    public void setUserSettings(String border1, String border2, String borderline, int width){
+    public void setUserSettings(char border1, char border2, char borderline, int width){
         this.borderSymbol1 = border1;
         this.borderSymbol2 = border2;
         this.borderSymbol2 = borderline;
@@ -91,6 +92,10 @@ public class ConsoleView {
 
     public void borderLineNoExtraSpace(){
         io.print(border1);
+    }
+
+    public char readChar(String prompt){
+        return io.readChar(prompt);
     }
    
 
@@ -138,6 +143,7 @@ public class ConsoleView {
         borderline();
         return io.readInt(1, MAIN_MENU_OPTIONS.length);
     }
+
 
     public int userOptions(String username){
         displayMessageBanner("LOGGED IN AS: " + username.toUpperCase());
@@ -188,8 +194,10 @@ public class ConsoleView {
     }
 
 	public boolean yesNoAnswer(String prompt) {
-
-        switch(io.readInt(prompt + " 1.Yes 2.No :")){
+        displayMessageBanner(prompt);
+        io.print("|" + (1) + "| YES");
+        io.print("|" + (2) + "| NO");
+        switch(io.readInt("CONFIRM:")){
             case 1:
                 return true;
             case 2:
@@ -256,5 +264,19 @@ public class ConsoleView {
         borderLineNoExtraSpace();
         io.print(ANSI_RED + message + ANSI_RESET);
         borderLineNoExtraSpace();
+    }
+
+
+    public int settingsOptions(){
+        displayMessageBanner("SETTINGS");
+        for(int i = 0; i < SETTINGS_MENU_OPTIONS.length; i++){
+            io.print("|" + (i+1) + "| " + SETTINGS_MENU_OPTIONS[i].toUpperCase());
+        }
+        borderline();
+        return io.readInt(1, SETTINGS_MENU_OPTIONS.length);
+    }
+    
+    public int readInt(String prompt){
+        return io.readInt(prompt);
     }
 }

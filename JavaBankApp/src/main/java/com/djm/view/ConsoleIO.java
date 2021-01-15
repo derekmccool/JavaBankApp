@@ -84,4 +84,18 @@ public class ConsoleIO {
 		}
 	}
 
+	public char readChar(String prompt) {
+		while (true) {
+			try {
+				System.out.print(prompt);
+				return sc.next().charAt(0);
+				
+			} catch (InputMismatchException e) {
+				System.out.println(ANSI_RED + "Please insert a proper value".toUpperCase() + ANSI_RESET);
+			}
+			
+		}
+	}
+
+
 }

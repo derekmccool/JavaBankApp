@@ -74,11 +74,102 @@ public class BankController {
             case 7:
                 addAccount();
             case 8:
+                settingsMenu();
+            case 9:
                 currentCustomer = null;
                 displayMenu();
 
         }
 
+    }
+
+    public void settingsMenu() {
+
+        switch (view.settingsOptions()) {
+
+            case 1:
+                updateBorderSymbol1();
+                break;
+            case 2:
+                updateBorderSymbol2();
+                break;
+            case 3:
+                updateBorderSymbol3();
+                break;
+            case 4:
+                updateConsoleWidth();
+                break;
+            case 5:
+                resetToDefaultSettings();
+                break;
+            case 6:
+                userMenu();
+                break;
+        }
+    }
+
+    private void resetToDefaultSettings() {
+        if (view.yesNoAnswer("RESET TO DEFAULT SETTINGS")) {
+            currentCustomer.getCustomerSettings().resetToDefault();
+            updateViewSettings();
+            view.displayMessageBanner("SETTINGS RESET TO DEFAULT");
+            settingsMenu();
+        } else {
+            settingsMenu();
+        }
+    }
+
+    private void updateConsoleWidth() {
+
+        int newWidth = view.readInt("SET CONSOLE WIDTH CURRENTLY(" + currentCustomer.getCustomerSettings().getConsoleWidth() + ")");
+
+        if (view.yesNoAnswer("CHANGE TO " + newWidth + "?")) {
+            try {
+                currentCustomer.getCustomerSettings().setConsoleWidth(newWidth);
+            } catch (Exception e) {
+                view.printWarning(e.getMessage().toUpperCase());
+                updateConsoleWidth();
+            }
+            updateViewSettings();
+            view.displayMessageBanner("CONSOLE WIDTH UPDATED");
+            settingsMenu();
+        }else{
+            settingsMenu();
+        }
+    }
+    private void updateBorderSymbol3() {
+        char newChar = view.readChar("SET BORDER SYMBOL 1 CURRENTLY(" + currentCustomer.getCustomerSettings().getBorderSymbol3() + ")");
+        if(view.yesNoAnswer("CHANGE TO " + newChar + "?")){
+            currentCustomer.getCustomerSettings().setBorderSymbol3(newChar);
+            updateViewSettings();
+            view.displayMessageBanner("SYMBOL 3 UPDATED");
+            settingsMenu();
+        }else{
+            settingsMenu();
+        }
+    }
+    private void updateBorderSymbol2() {
+        char newChar = view.readChar("SET BORDER SYMBOL 2 CURRENTLY(" + currentCustomer.getCustomerSettings().getBorderSymbol2() + ")");
+        if(view.yesNoAnswer("CHANGE TO " + newChar + "?")){
+            currentCustomer.getCustomerSettings().setBorderSymbol2(newChar);
+            updateViewSettings();
+            view.displayMessageBanner("SYMBOL 2 UPDATED");
+            settingsMenu();
+        }else{
+            settingsMenu();
+        }
+    }
+
+    private void updateBorderSymbol1() {
+        char newChar = view.readChar("SET BORDER SYMBOL 1 CURRENTLY(" + currentCustomer.getCustomerSettings().getBorderSymbol1() + ")");
+        if(view.yesNoAnswer("CHANGE TO " + newChar + "?")){
+            currentCustomer.getCustomerSettings().setBorderSymbol1(newChar);
+            updateViewSettings();
+            view.displayMessageBanner("SYMBOL1 UPDATED");
+            settingsMenu();
+        }else{
+            settingsMenu();
+        }
     }
 
     public void exitBankApp() {
@@ -356,7 +447,10 @@ public class BankController {
     }
 
     public void updateViewSettings(){
-        view.setUserSettings("*", "+", "_", 100);
+        view.setUserSettings(currentCustomer.getCustomerSettings().getBorderSymbol1(),
+                             currentCustomer.getCustomerSettings().getBorderSymbol2(),
+                             currentCustomer.getCustomerSettings().getBorderSymbol3(),
+                             currentCustomer.getCustomerSettings().getConsoleWidth());
     }
 
 }
