@@ -282,10 +282,12 @@ public class BankController {
 
     public void login() {
 
-        String username = view.readStringInput("USERNAME:");
-        String password = view.readStringInput("PASSWORD:");
+        String username;
+        String password;
         Customer customer = null;
         while(loginAttempts > 0){
+            username = view.readStringInput("USERNAME:");
+            password = view.readStringInput("PASSWORD:");
             try {
                 customer = service.getCustomerByUsername(username);
                 if (service.correctPassword(customer, password)) {
@@ -296,13 +298,11 @@ public class BankController {
                     loginAttempts--;
                     view.printWarning("USERNAME AND PASSWORD DO NOT MATCH");
                     view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
-                    displayMenu();
                 }
             } catch (CustomerNotFoundException e) {
                 loginAttempts--;
                 view.printWarning(e.getMessage().toUpperCase());
                 view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
-    
             }
         }
 
