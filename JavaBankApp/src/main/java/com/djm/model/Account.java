@@ -1,12 +1,15 @@
 package com.djm.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import com.djm.exception.InsufficientFundsExeption;
 
 public class Account {
 
     private int customerid;
     private int accountNumber;
-    private double balance;
+    private BigDecimal balance;
     public AccountType accountType;
     static int counter = 100000;
 
@@ -17,7 +20,7 @@ public class Account {
     public Account(int customerid, double balance, AccountType accountType) {
         this.customerid = customerid;
         this.accountNumber = counter;
-        this.balance = balance;
+        this.balance = new BigDecimal(balance).setScale(2, RoundingMode.HALF_UP);
         this.accountType = accountType;
         counter++;
     }
@@ -38,11 +41,11 @@ public class Account {
         this.accountNumber = accountNumber;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return this.balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
@@ -54,20 +57,19 @@ public class Account {
         this.accountType = accountType;
     }
 
-    public void withdrawal(double amount) throws InsufficientFundsExeption {
-        if(amount < this.balance){
-            setBalance(this.balance - amount);
+    public void withdrawal(BigDecimal amount) throws InsufficientFundsExeption {
+        if(this.balance.compareTo(amount) > -1){
+            setBalance(this.balance.subtract(amount));
         }else{
             throw new InsufficientFundsExeption(this.balance);
         }
 
     }
 
-    public void deposit(double amount){
+    public void deposit(BigDecimal amount){
 
-        if(amount > 0){
-            setBalance(this.balance + amount);
-        }
+        setBalance(this.balance.add(amount));
+        
     }
 
     @Override

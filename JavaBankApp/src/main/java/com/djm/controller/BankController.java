@@ -1,9 +1,11 @@
 package com.djm.controller;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.djm.exception.CustomerNameTakenException;
+import com.djm.exception.CustomerNotFoundException;
 import com.djm.exception.InsufficientFundsExeption;
 import com.djm.exception.MaximumAccountsReachedException;
 import com.djm.model.Account;
@@ -25,7 +27,6 @@ public class BankController {
 
     public boolean keepRunning = true;
     private Customer currentCustomer = null;
-    private boolean loggedIn = false;
     private int loginAttempts = 3;
 
     public void bankRunner() {
@@ -45,86 +46,6 @@ public class BankController {
                 exitBankApp();
                 break;
         }
-    }
-
-    public void exitBankApp() {
-        view.exitMessage();
-        System.exit(0);
-    }
-
-    public void createCustomer() {
-        boolean accountInvalid = true;
-        String[] customerInfo;
-        do {
-            customerInfo = view.createCustomer();
-            String username = customerInfo[0];
-            String password = customerInfo[1];
-            String confirmPass = customerInfo[2];
-            if (password.equals(confirmPass)) {
-                try{
-                    accountInvalid = false;
-                    service.createCustomer(username, password);
-                    currentCustomer = service.getCustomerByUsername(username);
-
-                }catch(CustomerNameTakenException e){
-                    System.out.println(e.getMessage());
-                }
-            } else {
-                view.printWarning("PASSWORD DOES NOT MATCH");
-            }
-        } while (accountInvalid);
-        addAccount();
-    }
-
-    public void addAccount() {
-        AccountType[] accountTypes = AccountType.values();
-        Account newAccount = new Account();
-        boolean infoConfirmed = true;
-        do {
-            newAccount.setAccountType(view.addAccount(accountTypes));
-            newAccount.setBalance(view.getUserAmount("INITIAL DEPOSIT AMOUNT: $"));
-            view.displayAccountInfo(newAccount);
-            infoConfirmed = view.yesNoAnswer("IS THIS INFORMATION CORRECT?");
-        } while (!infoConfirmed);
-
-        try{
-            service.addAccountToCustomer(currentCustomer, newAccount);
-        }catch(MaximumAccountsReachedException e){
-            view.printWarning(e.getMessage().toUpperCase());
-        }
-
-        userMenu();
-
-    }
-
-    public void login() {
-
-        String[] loginInfo = view.loginPrompt();
-        Customer customer = service.getCustomerByUsername(loginInfo[0]);
-        if (customer != null) {
-
-            if (loginInfo[1].equals(customer.getPassword())) {
-                currentCustomer = customer;
-                loggedIn = true;
-                userMenu();
-            } else {
-                loginAttempts--;
-                view.printWarning("USERNAME AND PASSWORD DO NOT MATCH");
-                view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
-                displayMenu();
-            }
-        } else {
-            loginAttempts--;
-            view.printWarning("USERNAME DOES NOT EXIST");
-            view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
-            displayMenu();
-        }
-
-        if (loginAttempts == 0) {
-            view.printWarning("TOO MANY LOGIN ATTEMPTS");
-            exitBankApp();
-        }
-
     }
 
     public void userMenu() {
@@ -160,6 +81,149 @@ public class BankController {
 
     }
 
+    public void exitBankApp() {
+        view.exitMessage();
+        System.exit(0);
+    }
+
+    public void createCustomer() {
+        boolean accountCreated = false;
+        String username = createUsername();
+        String password = createPassword();
+
+        while (!accountCreated) {
+            try {
+                service.createCustomer(username, password);
+                currentCustomer = service.getCustomerByUsername(username);
+                accountCreated = true;
+                addAccount();
+            } catch (CustomerNameTakenException e) {
+                view.printWarning(e.getMessage().toUpperCase());
+                accountCreated = view.yesNoAnswer("TRY AGAIN?");
+            } catch (CustomerNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public String createUsername() {
+        String username = "";
+        boolean usernameUnique = false;
+        int remainingAttempts = 3;
+        List<String> usernameRequirements = new ArrayList<String>();
+
+        do {
+
+            do{
+                username = view.readStringInput("USERNAME:");
+                usernameRequirements = service.verifyUsername(username);
+                if(!usernameRequirements.isEmpty()){
+                    for (String requirement : usernameRequirements) {
+                        view.printWarning(requirement);
+                    }
+                }
+            }while(!usernameRequirements.isEmpty());
+
+            usernameUnique = service.checkUsernameAvailable(username);
+            if (!usernameUnique) {
+                view.printWarning(username.toUpperCase() + " IS ALREADY IN USE.  PLEASE TRY AGAIN.");
+                remainingAttempts--;
+            }
+
+            if (remainingAttempts == 0) {
+                view.printWarning("SUSPICIOUS ACTIVITY DETECTED.");
+                exitBankApp();
+            }
+        } while (!usernameUnique);
+
+        return username;
+    }
+
+    public String createPassword() {
+
+        String password = "";
+        String confirmPass = "";
+        boolean passwordConfirmed = false;
+
+        List<String> passwordRequirements = new ArrayList<String>();
+
+        while (!passwordConfirmed) {
+            do {
+                password = view.readStringInput("PASSWORD:");
+                passwordRequirements = service.verifyPassword(password);
+                if (!passwordRequirements.isEmpty()) {
+                    for (String requirement : passwordRequirements) {
+                        view.printWarning(requirement);
+                    }
+                }
+            } while (!passwordRequirements.isEmpty());
+
+            do {
+                confirmPass = view.readStringInput("CONFIRM PASSWORD:");
+                passwordConfirmed = password.equals(confirmPass);
+            } while (!passwordConfirmed);
+        }
+
+        return password;
+    }
+
+    public void addAccount() {
+        AccountType[] accountTypes = AccountType.values();
+        Account newAccount = new Account();
+        boolean infoConfirmed = true;
+        do {
+            newAccount.setAccountType(view.addAccount(accountTypes));
+            newAccount.setBalance(view.getUserAmount("INITIAL DEPOSIT AMOUNT: $"));
+            view.displayAccountInfo(newAccount);
+            infoConfirmed = view.yesNoAnswer("IS THIS INFORMATION CORRECT?");
+        } while (!infoConfirmed);
+
+        try {
+            service.addAccountToCustomer(currentCustomer, newAccount);
+        } catch (MaximumAccountsReachedException e) {
+            view.printWarning(e.getMessage().toUpperCase());
+        }
+
+        userMenu();
+
+    }
+
+    public void login() {
+
+        String username = view.readStringInput("USERNAME:");
+        String password = view.readStringInput("PASSWORD:");
+        Customer customer = null;
+        while(loginAttempts > 0){
+            try {
+                customer = service.getCustomerByUsername(username);
+                if (service.correctPassword(customer, password)) {
+                    currentCustomer = customer;
+                    updateViewSettings();
+                    userMenu();
+                } else {
+                    loginAttempts--;
+                    view.printWarning("USERNAME AND PASSWORD DO NOT MATCH");
+                    view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
+                    displayMenu();
+                }
+            } catch (CustomerNotFoundException e) {
+                loginAttempts--;
+                view.printWarning(e.getMessage().toUpperCase());
+                view.printWarning("LOGIN ATTEMPTS REMAININ: " + loginAttempts);
+    
+            }
+        }
+
+        if (loginAttempts == 0) {
+            view.printWarning("TOO MANY LOGIN ATTEMPTS");
+            exitBankApp();
+        }
+
+    }
+
+
+
     private void viewTransactions() {
         List<String> transactions = currentCustomer.getTransactions();
         if(transactions.size() > 5){
@@ -174,14 +238,15 @@ public class BankController {
 
     public void depositMenu() {
         int choice = view.accountSelect(currentCustomer.getAccounts());
-        double deposit = 0.00;
+        BigDecimal deposit;
         if (choice == (currentCustomer.getAccounts().size() + 1)) {
             userMenu();
         } else {
             Account account =  currentCustomer.getAccounts().get(choice - 1);
             deposit = view.getUserAmount("DEPOSIT AMOUNT: $");
-            if (deposit > 0) {
+            if (deposit.compareTo(BigDecimal.ZERO) > -1) {
                 service.depositToAccount(currentCustomer, account, deposit);
+                view.displayMessageBanner("DEPOSITED $" + deposit + " TO ACCOUNT NUMBER:" + account.getAccountNumber());
                 userMenu();
             } else {
                 view.printWarning("DEPOSIT CANNOT BE A NEGATIVE NUMBER");
@@ -192,15 +257,16 @@ public class BankController {
 
     public void withdrawalMenu() {
         int choice = view.accountSelect(currentCustomer.getAccounts());
-        double withdrawal = 0.00;
+        BigDecimal withdrawal;;
         if (choice == (currentCustomer.getAccounts().size() + 1)) {
             userMenu();
         } else {
             Account account =  currentCustomer.getAccounts().get(choice - 1);
             withdrawal = view.getUserAmount("WITHDRAWAL AMOUNT: $");
-            if (withdrawal > 0) {
+            if (withdrawal.compareTo(BigDecimal.ZERO) > 0) {
                 try {
                     service.withdrawFromAccount(currentCustomer, account, withdrawal);
+                    view.displayMessageBanner("DEPOSITED $" + withdrawal + " TO ACCOUNT NUMBER:" + account.getAccountNumber());
                     userMenu();
                 } catch (InsufficientFundsExeption e) {
                     view.printWarning(e.getMessage().toUpperCase());
@@ -215,31 +281,60 @@ public class BankController {
 
     public void transferMenu(){
         int choice = view.accountSelect(currentCustomer.getAccounts());
-        double withdrawal = 0.00;
+        BigDecimal withdrawal;
         if (choice == (currentCustomer.getAccounts().size() + 1)) {
             userMenu();
         } else {
             Account account =  currentCustomer.getAccounts().get(choice - 1);
-            Customer transferCustomer = service.getCustomerByUsername(view.getTransferCustomerUsername());
-            withdrawal = view.getUserAmount("TRANSFER AMOUNT: $");
-            if (withdrawal > 0) {
-                try {
-                    service.sendTransfer(currentCustomer, transferCustomer, account, withdrawal);
+            Customer transferCustomer;
+            try {
+                transferCustomer = service.getCustomerByUsername(view.getTransferCustomerUsername());
+                withdrawal = view.getUserAmount("TRANSFER AMOUNT: $");
+                if (withdrawal.compareTo(BigDecimal.ZERO) > -1) {
+                    try {
+                        service.sendTransfer(currentCustomer, transferCustomer, account, withdrawal);
+                        userMenu();
+                    } catch (InsufficientFundsExeption e) {
+                        view.printWarning(e.getMessage().toUpperCase());
+                    }
                     userMenu();
-                } catch (InsufficientFundsExeption e) {
-                    view.printWarning(e.getMessage().toUpperCase());
+                }else{
+                    view.printWarning("WITHDRAWAL MUST BE A GREATER THAN $0.00");
+                    depositMenu();
                 }
-                userMenu();
-            }else{
-                view.printWarning("WITHDRAWAL CANNOT BE A NEGATIVE NUMBER");
-                depositMenu();
+            } catch (CustomerNotFoundException e) {
+                view.printWarning(e.getMessage().toUpperCase());
+                transferMenu();
             }
+            
         }
 
     }
 
     public void changePassword(){
-
+        int remainingAttempts = 3;
+        String password = "";
+        String newPassword = "";
+        while(remainingAttempts > 0){
+            password = view.readStringInput("CURRENT PASSWORD:");
+            if(service.correctPassword(currentCustomer, password)){
+                view.displayMessageBanner("UPDATE PASSWORD");
+                newPassword = createPassword();
+                if(service.updatePassword(currentCustomer, password, newPassword)){
+                    view.displayMessageBanner("PASSWORD UPDATED");
+                    break;
+                }else{
+                    remainingAttempts--;
+                }
+            }else{
+                remainingAttempts--;
+            }
+            if(remainingAttempts == 0){
+                view.printWarning("SUSPICIOUS ACTIVITY DETECTED.");
+                exitBankApp();
+            }
+        }
+        userMenu();
     }
 
     public void pendingTransfersPrompt(){
@@ -258,6 +353,10 @@ public class BankController {
             }
         }
 
+    }
+
+    public void updateViewSettings(){
+        view.setUserSettings("*", "+", "_", 100);
     }
 
 }

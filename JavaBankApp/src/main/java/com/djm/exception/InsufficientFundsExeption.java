@@ -1,12 +1,14 @@
 package com.djm.exception;
 
+import java.math.BigDecimal;
+
 public class InsufficientFundsExeption extends Exception {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
-    public InsufficientFundsExeption(double balance) {
-		super("Insufficient funds, withdrawal cannot be greater than current account balance. Current balance is: $" + balance);
+    public InsufficientFundsExeption(BigDecimal balance) {
+		super("Insufficient funds. Current balance is: $" + balance);
 	}
 }

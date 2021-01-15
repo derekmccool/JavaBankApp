@@ -1,15 +1,17 @@
 package com.djm.model;
 
+import java.math.BigDecimal;
+
 public class PendingTransfer {
     
     private Account sendingAccount;
     private Customer receivingCustomer;
-    private double transferAmount;
+    private BigDecimal transferAmount;
 
     public PendingTransfer() {
     }
 
-    public PendingTransfer(Account sendingAccount, Customer receivingCustomer, double transferAmount) {
+    public PendingTransfer(Account sendingAccount, Customer receivingCustomer, BigDecimal transferAmount) {
         this.sendingAccount = sendingAccount;
         this.receivingCustomer = receivingCustomer;
         this.transferAmount = transferAmount;
@@ -31,11 +33,11 @@ public class PendingTransfer {
         this.receivingCustomer = receivingCustomer;
     }
 
-    public double getTransferAmount() {
+    public BigDecimal getTransferAmount() {
         return this.transferAmount;
     }
 
-    public void setTransferAmount(double transferAmount) {
+    public void setTransferAmount(BigDecimal transferAmount) {
         this.transferAmount = transferAmount;
     }
 

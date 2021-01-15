@@ -34,18 +34,6 @@ public class CustomerDaoImpl implements CustomerDao {
             return null;
         }
     }
-
-    @Override
-    public Customer updatePassword(String password) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Account updateBalance(int accountId, double newBalance) {
-        // TODO Auto-generated method stub
-        return null;
-    }
     
     public void seedData(){
         for(int i = 0; i < 5; i++){

@@ -1,6 +1,5 @@
 package com.djm.dao;
 
-import com.djm.model.Account;
 import com.djm.model.Customer;
 
 public interface CustomerDao {
@@ -9,9 +8,9 @@ public interface CustomerDao {
 
     Customer getUserByUsername(String username);
 
-    Customer updatePassword(String password);
+    // Customer updatePassword(String password);
 
-    Account updateBalance(int accountId, double newBalance);
+    // Account updateBalance(int accountId, double newBalance);
 
     
 

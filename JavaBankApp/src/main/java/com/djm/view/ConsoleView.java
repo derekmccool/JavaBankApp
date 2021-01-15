@@ -1,5 +1,7 @@
 package com.djm.view;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import com.djm.model.Account;
@@ -10,22 +12,20 @@ import com.djm.model.PendingTransfer;
 public class ConsoleView {
     
     private ConsoleIO io;
+    private String border1 = "";
+    private String border2 = "";
+    private String borderline = "";
+    private String borderSymbol1 = "-";
+    private String borderSymbol2 = "=";
+    private String borderSymbol3 = "=";
 
-    public ConsoleView(ConsoleIO io){
-        this.io = io;
-        setBorders();
-    }
-
+    private int width = 50;
     final String[] MAIN_MENU_OPTIONS = { "Create New Account", "Login", "Exit" };
     final String[] CUSTOMER_MENU_OPTIONS = {"Deposit", "Withdrawal", "Transfer funds", 
                                             "Display Customer Info", "Change password", "View recent transactions", "Add Account",
                                             "Logout"};
 
 
-    public String border1 = "";
-    public String border2 = "";
-    public String borderline = "";
-    public int width = 50;
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -37,19 +37,40 @@ public class ConsoleView {
     public static final String ANSI_WHITE = "\u001B[37m";
 
 
-    public void setBorders(){
-        width = 100;
-        border1 = ANSI_PURPLE;
-        border2 = ANSI_YELLOW;
-        borderline = ANSI_PURPLE;
-        for(int i = 0; i < width; i ++){
-            border1 += "-";
-            border2 += "=";
-            borderline += "=";
+    public ConsoleView(ConsoleIO io){
+        this.io = io;
+        this.width = 100;
+        this.border1 = ANSI_PURPLE;
+        this.border2 = ANSI_YELLOW;
+        this.borderline = ANSI_PURPLE;
+        this.setBorders();
+    }
+
+    private void resetBorders(){
+        this.border1 = ANSI_PURPLE;
+        this.border2 = ANSI_YELLOW;
+        this.borderline = ANSI_PURPLE;
+    }
+
+    private void setBorders(){
+
+        for(int i = 0; i < this.width; i ++){
+            this.border1 += this.borderSymbol1;
+            this.border2 += this.borderSymbol2;
+            this.borderline += this.borderSymbol3;
         }
-        border1 += ANSI_RESET;
-        border2 += ANSI_RESET;
-        borderline += ANSI_RESET;
+        this.border1 += ANSI_RESET;
+        this.border2 += ANSI_RESET;
+        this.borderline += ANSI_RESET;
+    }
+
+    public void setUserSettings(String border1, String border2, String borderline, int width){
+        this.borderSymbol1 = border1;
+        this.borderSymbol2 = border2;
+        this.borderSymbol2 = borderline;
+        this.width = width;
+        resetBorders();
+        this.setBorders();
     }
 
 
@@ -131,14 +152,11 @@ public class ConsoleView {
         displayMessageBanner("GOODBYE");
     }
     
-    public String[] createCustomer(){
-        String username = io.readString("ENTER A USERNAME: ");
-        String password = io.readString("PASSWORD: ");
-        String confirmPass = io.readString("CONFIRM PASSWORD: ");
-        String[] accountInfo = {username, password, confirmPass};
-        return accountInfo;
+    public String readStringInput(String prompt){
+        return io.readString(prompt);
     }
 
+  
     public AccountType addAccount(AccountType[] accounts){
         borderLineNoExtraSpace();
         System.out.println("WHAT TYPE OF ACCOUNT WOULD YOU LIKE TO ADD?");
@@ -150,8 +168,8 @@ public class ConsoleView {
         return (accounts[choice - 1]);
     }
 
-    public double getUserAmount(String prompt){
-        return io.readDouble(prompt);
+    public BigDecimal getUserAmount(String prompt){
+        return new BigDecimal(io.readDouble(prompt)).setScale(2, RoundingMode.HALF_UP);
     }
 
 

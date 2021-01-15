@@ -13,7 +13,7 @@ public class Customer {
     private List<Account> accounts = new ArrayList<>();
     private List<PendingTransfer> pendingTransfers = new ArrayList<>();
     private List<String> transactions = new ArrayList<>();
- 
+    private CustomerSettings customerSettings;
 
     public Customer() {
     }
@@ -22,6 +22,7 @@ public class Customer {
         this.customerId = counter;
         this.username = username;
         this.password = password;
+        this.customerSettings = new CustomerSettings();
         counter++;
 
     }
@@ -42,8 +43,8 @@ public class Customer {
         this.username = username;
     }
 
-    public String getPassword() {
-        return this.password;
+    public boolean correctPassword(String password) {
+        return this.password.equals(password);
     }
 
     public void setPassword(String password) {
@@ -74,4 +75,5 @@ public class Customer {
         this.pendingTransfers.add(pendingTransfer);
     }
 
+   
 }
